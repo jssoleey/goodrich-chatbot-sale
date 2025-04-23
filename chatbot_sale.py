@@ -230,16 +230,16 @@ elif st.session_state.page == "chatbot":
 
     # 👉 버튼 영역: 두 개의 버튼을 나란히 배치
     col1, col2 = st.columns([1, 1])
-
+    
     with col1:
         if st.button("💬 카카오톡 발송용 문자 생성하기", use_container_width=True):
             with st.spinner("카카오톡 문자를 생성 중입니다..."):
-                conversation_summary = "상담 중 고객 관심사항과 추가 설명 요청 포함"
                 kakao_message = get_kakao_response(
-                    st.session_state['script_context'],
-                    conversation_summary
+                    script_context = st.session_state['script_context'],
+                    message_list = st.session_state['message_list']
                 )
                 st.session_state['kakao_text'] = "".join(kakao_message)
+
 
     with col2:
         if st.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):

@@ -219,26 +219,10 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
 
-# ======================== 체인 구성 ========================
+# ======================== 스크립트 생성 ========================
 def get_script_chain():
     prompt = ChatPromptTemplate.from_messages([
         ("system", SYSTEM_PROMPT_SCRIPT),
-        MessagesPlaceholder("chat_history"),
-        ("human", "{input}")
-    ])
-    return prompt | get_llm() | StrOutputParser()
-
-def get_chatbot_chain():
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT_CHATBOT),
-        MessagesPlaceholder("chat_history"),
-        ("human", "{input}")
-    ])
-    return prompt | get_llm() | StrOutputParser()
-
-def get_kakao_chain():
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT_KAKAO),
         MessagesPlaceholder("chat_history"),
         ("human", "{input}")
     ])
@@ -262,6 +246,15 @@ def get_script_response(user_message, session_id="script_session"):
         print("🔥 예외:", e)
         return iter(["❌ 오류가 발생했습니다. 관리자에게 문의해 주세요."])
 
+# ======================== 대화 챗봇 ========================
+def get_chatbot_chain():
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", SYSTEM_PROMPT_CHATBOT),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}")
+    ])
+    return prompt | get_llm() | StrOutputParser()
+
 def get_chatbot_response(user_message, script_context="", session_id="chatbot_session"):
     try:
         full_input = f"[현재 상담 스크립트 요약]\n{script_context}\n\n[질문]\n{user_message}"
@@ -280,10 +273,29 @@ def get_chatbot_response(user_message, script_context="", session_id="chatbot_se
         st.error("🔥 오류가 발생했습니다. 콘솔 로그를 확인해 주세요.")
         print("🔥 예외:", e)
         return iter(["❌ 오류가 발생했습니다. 관리자에게 문의해 주세요."])
+
+# ======================== 카카오톡 문자 발송 ========================
+def get_kakao_chain():
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", SYSTEM_PROMPT_KAKAO),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}")
+    ])
+    return prompt | get_llm() | StrOutputParser()
+
+def generate_conversation_summary(message_list):
+    summary = ""
+    for message in message_list:
+        if message['role'] == 'user':
+            summary += f"상담원 질문: {message['content']}\n"
+        elif message['role'] == 'ai':
+            summary += f"AI 답변: {message['content']}\n"
+    return summary
     
-def get_kakao_response(script_context, conversation_summary="", session_id="kakao_session"):
+def get_kakao_response(script_context, message_list, session_id="kakao_session"):
     try:
-        # 입력값 구성: 스크립트 + 대화 요약
+        conversation_summary = generate_conversation_summary(message_list)
+
         full_input = f"[상담 요약]\n{script_context}\n\n[추가 대화 내용]\n{conversation_summary}"
 
         chain = RunnableWithMessageHistory(
@@ -303,3 +315,4 @@ def get_kakao_response(script_context, conversation_summary="", session_id="kaka
         st.error("🔥 카카오톡 메시지 생성 중 오류가 발생했습니다. 콘솔 로그를 확인해 주세요.")
         print("🔥 예외:", e)
         return iter(["❌ 오류가 발생했습니다. 관리자에게 문의해 주세요."])
+
