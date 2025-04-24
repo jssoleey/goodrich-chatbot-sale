@@ -525,7 +525,8 @@ elif st.session_state.page == "chatbot":
                 # 2️⃣ 기존 파일명 여부 확인
                 if st.session_state.get('current_file'):
                     # 기존 파일명에서 고객 이름 유지, 시간만 갱신
-                    new_filename = f"{customer_name}_{datetime.now().strftime('%y%m%d-%H%M%S')}.json"
+                    KST = timezone(timedelta(hours=9))
+                    new_filename = f"{customer_name}_{datetime.now(KST).strftime('%y%m%d-%H%M%S')}.json"
                     
                     # 기존 파일 삭제 (덮어쓰기 효과)
                     old_file = f"{user_path}/{st.session_state['current_file']}"
@@ -533,7 +534,8 @@ elif st.session_state.page == "chatbot":
                         os.remove(old_file)
                 else:
                     # 새로운 저장이라면
-                    new_filename = f"{customer_name}_{datetime.now().strftime('%y%m%d-%H%M%S')}.json"
+                    KST = timezone(timedelta(hours=9))
+                    new_filename = f"{customer_name}_{datetime.now(KST).strftime('%y%m%d-%H%M%S')}.json"
 
                 # 3️⃣ 데이터 저장
                 data_to_save = {
