@@ -223,7 +223,7 @@ if st.session_state.page == "input":
 
     # 🔹 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
+        "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
@@ -238,7 +238,7 @@ if st.session_state.page == "input":
 
     # 🔹 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
+        "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
@@ -300,7 +300,7 @@ if st.session_state.page == "input":
 
     # 🔹 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
+        "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
@@ -398,7 +398,7 @@ elif st.session_state.page == "chatbot":
 
     # 🔹 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
+        "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
@@ -413,7 +413,7 @@ elif st.session_state.page == "chatbot":
 
     # 🔹 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
+        "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
@@ -475,7 +475,7 @@ elif st.session_state.page == "chatbot":
 
     # 🔹 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
+        "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
