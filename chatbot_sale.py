@@ -71,7 +71,7 @@ st.markdown(
 )
 st.caption("입력하신 고객 정보에 따라 상담 스크립트를 만들어 드립니다!")
 st.caption("정보가 구체적일수록 좋은 스크립트가 나와요.")
-st.caption("스크립트 생성 이후 추가적인 대화를 통해 현재 상황을 AI에게 알려주세요!")
+st.caption("스크립트 생성 이후 추가적인 대화를 통해 AI에게 상황을 현재 알려주세요!")
 st.caption("대화가 끝나면 '카카오톡 문자 생성하기' 기능을 활용해보세요 😊")
 
 st.markdown('<p class="small-text"> </p>', unsafe_allow_html=True)
@@ -144,6 +144,10 @@ st.markdown(
         border-radius: 8px;
         padding: 10px 20px;
         border: none;
+    }
+    /* 사이드바 상단 여백 줄이기 */
+    section[data-testid="stSidebar"] > div:first-child {
+        padding-top: -80px;
     }
     </style>
     """,
@@ -227,22 +231,7 @@ if st.session_state.page == "input":
         unsafe_allow_html=True
     )
 
-    # 2️⃣ 새로운 고객 정보 입력하기 버튼        
-    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
-        st.session_state.page = "input"
-        st.session_state.message_list = []
-        st.session_state.script_context = ""
-        st.session_state.kakao_text = ""
-        st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
-        st.experimental_rerun()
-
-    # 🔹 구분선
-    st.sidebar.markdown(
-        "<hr style='margin-top:14px; margin-bottom:28px;'>",
-        unsafe_allow_html=True
-    )
-
-    # 3️⃣ 저장된 대화 기록 + 불러오기/삭제하기
+    # 2️⃣ 저장된 대화 기록 + 불러오기/삭제하기
     user_path = f"/data/history/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
@@ -303,6 +292,15 @@ if st.session_state.page == "input":
         "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
+    
+    # 3️⃣ 새로운 고객 정보 입력하기 버튼        
+    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
+        st.session_state.page = "input"
+        st.session_state.message_list = []
+        st.session_state.script_context = ""
+        st.session_state.kakao_text = ""
+        st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
+        st.experimental_rerun()
 
     # 4️⃣ 최하단 로그아웃 버튼
     if st.sidebar.button("🚪 로그아웃", use_container_width=True):
@@ -323,7 +321,7 @@ if st.session_state.page == "input":
     )
     interest = st.text_input(
         "고객 관심 보험",
-        placeholder="예: 태아보험, 간병보험"
+        placeholder="예: 태아아보험, 간병보험"
     )
 
     reaction = st.text_input(
@@ -335,9 +333,6 @@ if st.session_state.page == "input":
         "기타 상황",
         placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음"
     )
-
-
-
 
     col1, col2, col3 = st.columns([1, 2, 1])   # 비율을 조정해서 가운데로
 
@@ -382,7 +377,7 @@ if st.session_state.page == "input":
                 
 # ----------------- 챗봇 화면 -------------------
 elif st.session_state.page == "chatbot":
-
+        
     # 1️⃣ 현재 날짜와 시간 표시
     KST = timezone(timedelta(hours=9))
     now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
@@ -402,22 +397,7 @@ elif st.session_state.page == "chatbot":
         unsafe_allow_html=True
     )
 
-    # 2️⃣ 새로운 고객 정보 입력하기 버튼       
-    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
-        st.session_state.page = "input"
-        st.session_state.message_list = []
-        st.session_state.script_context = ""
-        st.session_state.kakao_text = ""
-        st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
-        st.experimental_rerun()
-
-    # 🔹 구분선
-    st.sidebar.markdown(
-        "<hr style='margin-top:14px; margin-bottom:28px;'>",
-        unsafe_allow_html=True
-    )
-
-    # 3️⃣ 저장된 대화 기록 + 불러오기/삭제하기
+    # 2️⃣ 저장된 대화 기록 + 불러오기/삭제하기
     user_path = f"/data/history/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
@@ -478,6 +458,15 @@ elif st.session_state.page == "chatbot":
         "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
+    
+    # 3️⃣ 새로운 고객 정보 입력하기 버튼       
+    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
+        st.session_state.page = "input"
+        st.session_state.message_list = []
+        st.session_state.script_context = ""
+        st.session_state.kakao_text = ""
+        st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
+        st.experimental_rerun()    
 
     # 4️⃣ 최하단 로그아웃 버튼
     if st.sidebar.button("🚪 로그아웃", use_container_width=True):
@@ -571,8 +560,9 @@ elif st.session_state.page == "chatbot":
 # 이미지 URL
 bottom_image_url = "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/bottom_box.png?raw=true"
 
-# 최상단에 이미지 출력
+# 최하단에 이미지 출력
 st.caption("")
+
 st.markdown(
     f"""
     <div style="text-align:center; margin-bottom:20px;">
