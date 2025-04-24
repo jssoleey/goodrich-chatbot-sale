@@ -254,46 +254,50 @@ if st.session_state.page == "input":
         # 파일명 필터링 (대소문자 무시)
         filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
         
-        # 필터링 결과 표시
-        if filtered_files:
-            selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
+        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
+        
+        col1, col2 = st.sidebar.columns(2)
+        
 
-            col1, col2 = st.sidebar.columns(2)
-
-            with col1:
-                if st.button("불러오기", use_container_width=True):
-                    with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
-                        loaded_data = json.load(f)
-                        if isinstance(loaded_data, list):
-                            st.session_state['script_context'] = ""
-                            st.session_state.message_list = loaded_data
-                            st.session_state['customer_name'] = "고객명미입력"
-                        elif isinstance(loaded_data, dict):
-                            st.session_state['script_context'] = loaded_data.get("script_context", "")
-                            st.session_state.message_list = loaded_data.get("message_list", [])
-                            st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
-                        else:
-                            st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
-                            st.stop()
-
-                    st.session_state['current_file'] = selected_chat
-                    st.session_state.page = "chatbot"
-                    st.experimental_rerun()
-
-            with col2:
-                if st.button("🗑️ 삭제하기", use_container_width=True):
-                    file_path = f"{user_path}/{selected_chat}"
-                    if os.path.exists(file_path):
-                        try:
-                            os.remove(file_path)
-                            st.sidebar.success(f"{selected_chat} 삭제 완료!")
-                            st.experimental_rerun()
-                        except Exception as e:
-                            st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
+        with col1:
+            if st.button("불러오기", use_container_width=True):
+                with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
+                    loaded_data = json.load(f)
+                    if isinstance(loaded_data, list):
+                        st.session_state['script_context'] = ""
+                        st.session_state.message_list = loaded_data
+                        st.session_state['customer_name'] = "고객명미입력"
+                    elif isinstance(loaded_data, dict):
+                        st.session_state['script_context'] = loaded_data.get("script_context", "")
+                        st.session_state.message_list = loaded_data.get("message_list", [])
+                        st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
                     else:
-                        st.sidebar.warning("이미 삭제된 파일입니다.")
-        else:
-            st.sidebar.info("검색 결과가 없습니다.")
+                        st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
+                        st.stop()
+
+                st.session_state['current_file'] = selected_chat
+                st.session_state.page = "chatbot"
+                st.experimental_rerun()
+
+        with col2:
+            if st.button("🗑️ 삭제하기", use_container_width=True):
+                file_path = f"{user_path}/{selected_chat}"
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                        st.sidebar.success(f"{selected_chat} 삭제 완료!")
+                        st.experimental_rerun()
+                    except Exception as e:
+                        st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
+                else:
+                    st.sidebar.warning("이미 삭제된 파일입니다.")
+        # ✅ 검색 결과 없을 때만 메시지 출력
+        if not filtered_files and search_keyword:
+            st.sidebar.markdown(
+                "<div style='padding:6px; background-color:#f0f0f0; border-radius:5px;'>🔍 검색 결과가 없습니다.</div>",
+                unsafe_allow_html=True
+            )
+            
     else:
         st.sidebar.info("저장된 대화가 없습니다.")
 
@@ -421,46 +425,50 @@ elif st.session_state.page == "chatbot":
         # 파일명 필터링 (대소문자 무시)
         filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
         
-        # 필터링 결과 표시
-        if filtered_files:
-            selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
+        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
+        
+        col1, col2 = st.sidebar.columns(2)
+        
 
-            col1, col2 = st.sidebar.columns(2)
-
-            with col1:
-                if st.button("불러오기", use_container_width=True):
-                    with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
-                        loaded_data = json.load(f)
-                        if isinstance(loaded_data, list):
-                            st.session_state['script_context'] = ""
-                            st.session_state.message_list = loaded_data
-                            st.session_state['customer_name'] = "고객명미입력"
-                        elif isinstance(loaded_data, dict):
-                            st.session_state['script_context'] = loaded_data.get("script_context", "")
-                            st.session_state.message_list = loaded_data.get("message_list", [])
-                            st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
-                        else:
-                            st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
-                            st.stop()
-
-                    st.session_state['current_file'] = selected_chat
-                    st.session_state.page = "chatbot"
-                    st.experimental_rerun()
-
-            with col2:
-                if st.button("🗑️ 삭제하기", use_container_width=True):
-                    file_path = f"{user_path}/{selected_chat}"
-                    if os.path.exists(file_path):
-                        try:
-                            os.remove(file_path)
-                            st.sidebar.success(f"{selected_chat} 삭제 완료!")
-                            st.experimental_rerun()
-                        except Exception as e:
-                            st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
+        with col1:
+            if st.button("불러오기", use_container_width=True):
+                with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
+                    loaded_data = json.load(f)
+                    if isinstance(loaded_data, list):
+                        st.session_state['script_context'] = ""
+                        st.session_state.message_list = loaded_data
+                        st.session_state['customer_name'] = "고객명미입력"
+                    elif isinstance(loaded_data, dict):
+                        st.session_state['script_context'] = loaded_data.get("script_context", "")
+                        st.session_state.message_list = loaded_data.get("message_list", [])
+                        st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
                     else:
-                        st.sidebar.warning("이미 삭제된 파일입니다.")
-        else:
-            st.sidebar.info("검색 결과가 없습니다.")
+                        st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
+                        st.stop()
+
+                st.session_state['current_file'] = selected_chat
+                st.session_state.page = "chatbot"
+                st.experimental_rerun()
+
+        with col2:
+            if st.button("🗑️ 삭제하기", use_container_width=True):
+                file_path = f"{user_path}/{selected_chat}"
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                        st.sidebar.success(f"{selected_chat} 삭제 완료!")
+                        st.experimental_rerun()
+                    except Exception as e:
+                        st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
+                else:
+                    st.sidebar.warning("이미 삭제된 파일입니다.")
+        # ✅ 검색 결과 없을 때만 메시지 출력
+        if not filtered_files and search_keyword:
+            st.sidebar.markdown(
+                "<div style='padding:6px; background-color:#f0f0f0; border-radius:5px;'>🔍 검색 결과가 없습니다.</div>",
+                unsafe_allow_html=True
+            )
+            
     else:
         st.sidebar.info("저장된 대화가 없습니다.")
 
