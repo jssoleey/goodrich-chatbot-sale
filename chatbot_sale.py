@@ -335,7 +335,7 @@ if st.session_state.page == "input":
     )
     interest = st.text_input(
         "고객 관심 보험",
-        placeholder="예: 태아아보험, 간병보험"
+        placeholder="예: 태아보험, 간병보험"
     )
 
     reaction = st.text_input(
