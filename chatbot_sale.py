@@ -328,7 +328,7 @@ if st.session_state.page == "input":
 
     reaction = st.text_input(
         "고객 반응",
-        placeholder="예: 보험료를 저렴하게 가입하고 싶음, 기억은 안 나지만 시간 괜찮다고 함"
+        placeholder="예: 보험료를 저렴하게 가입하고 싶음, 최근 병원 진료 후 필요성을 느껴 상담 신청"
     )
 
     etc = st.text_input(
