@@ -145,9 +145,18 @@ st.markdown(
         padding: 10px 20px;
         border: none;
     }
-    /* 사이드바 상단 여백 줄이기 */
+    /* 사이드바 전체 여백 조정 */
     section[data-testid="stSidebar"] > div:first-child {
-        padding-top: -80px;
+        padding-top: -50px;    /* 상단 여백 */
+        padding-bottom: 0px;  /* 하단 여백 */
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    /* 사이드바 내부 요소 간격 줄이기 */
+    .block-container div[data-testid="stVerticalBlock"] {
+        margin-top: -5px;
+        margin-bottom: -5px;
     }
     </style>
     """,
@@ -212,7 +221,7 @@ if st.session_state.page == "login":
 # ----------------- 고객 정보 입력 화면 -------------------
 if st.session_state.page == "input":
 
-    # 1️⃣ 현재 날짜와 시간 표시
+    # 현재 날짜와 시간 표시
     KST = timezone(timedelta(hours=9))
     now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
     st.sidebar.markdown(
@@ -220,90 +229,91 @@ if st.session_state.page == "input":
         unsafe_allow_html=True
     )
     
-    # 1️⃣ 최상단 인삿말 + 화이팅 멘트
+    # 최상단 인삿말 + 화이팅 멘트
     user_name = st.session_state['user_folder'].split('_')[0]
     st.sidebar.title(f"😊 {user_name}님, 반갑습니다!")
     st.sidebar.markdown("오늘도 멋진 상담 화이팅입니다! 💪")
 
-    # 🔹 구분선
+    # 구분선
     st.sidebar.markdown(
         "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
-    # 2️⃣ 저장된 대화 기록 + 불러오기/삭제하기
+    # 사용자 폴더 경로
     user_path = f"/data/history/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
-        
+
     history_files = os.listdir(user_path)
-    
+
     if history_files:
-        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", history_files)       
+        # 🔍 검색창 추가
+        search_keyword = st.sidebar.text_input("🔎 고객명으로 검색", placeholder="고객명 입력 후 ENTER", key="search_input")        
 
-        col1, col2 = st.sidebar.columns(2)
-                                
-        with col1:
-            if st.button("불러오기", use_container_width=True):
-                # 👉 현재 불러온 파일명 저장                
-                with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
-                    loaded_data = json.load(f)
-                    if isinstance(loaded_data, list):
-                        st.session_state['script_context'] = ""
-                        st.session_state.message_list = loaded_data
-                        # 리스트 형식 파일은 고객명 추출 불가 → 기본값 유지
-                        st.session_state['customer_name'] = "고객명미입력"
-                    elif isinstance(loaded_data, dict):
-                        st.session_state['script_context'] = loaded_data.get("script_context", "")
-                        st.session_state.message_list = loaded_data.get("message_list", [])
-
-                        # ✅ 고객명 보완 로직
-                        if "customer_name" in loaded_data:
-                            st.session_state['customer_name'] = loaded_data['customer_name']
-                        else:
-                            # 👉 파일명에서 고객명 추출 (언더바 기준 첫 번째 부분)
-                            st.session_state['customer_name'] = selected_chat.split('_')[0]
-                    else:
-                        st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
-                        st.stop()
-
-                st.session_state['current_file'] = selected_chat
-                st.session_state.page = "chatbot"
-                st.experimental_rerun()
-
-        with col2:
-            if st.button("🗑️ 삭제하기", use_container_width=True):
-                file_path = f"{user_path}/{selected_chat}"
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                        st.sidebar.success(f"{selected_chat} 삭제 완료!")
-                        st.experimental_rerun()   # 여기서 바로 종료
-                    except Exception as e:
-                        st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
-                else:
-                    st.sidebar.warning("이미 삭제된 파일입니다.")
+        # 파일명 필터링 (대소문자 무시)
+        filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
         
+        # 필터링 결과 표시
+        if filtered_files:
+            selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
+
+            col1, col2 = st.sidebar.columns(2)
+
+            with col1:
+                if st.button("불러오기", use_container_width=True):
+                    with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
+                        loaded_data = json.load(f)
+                        if isinstance(loaded_data, list):
+                            st.session_state['script_context'] = ""
+                            st.session_state.message_list = loaded_data
+                            st.session_state['customer_name'] = "고객명미입력"
+                        elif isinstance(loaded_data, dict):
+                            st.session_state['script_context'] = loaded_data.get("script_context", "")
+                            st.session_state.message_list = loaded_data.get("message_list", [])
+                            st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
+                        else:
+                            st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
+                            st.stop()
+
+                    st.session_state['current_file'] = selected_chat
+                    st.session_state.page = "chatbot"
+                    st.experimental_rerun()
+
+            with col2:
+                if st.button("🗑️ 삭제하기", use_container_width=True):
+                    file_path = f"{user_path}/{selected_chat}"
+                    if os.path.exists(file_path):
+                        try:
+                            os.remove(file_path)
+                            st.sidebar.success(f"{selected_chat} 삭제 완료!")
+                            st.experimental_rerun()
+                        except Exception as e:
+                            st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
+                    else:
+                        st.sidebar.warning("이미 삭제된 파일입니다.")
+        else:
+            st.sidebar.info("검색 결과가 없습니다.")
     else:
         st.sidebar.info("저장된 대화가 없습니다.")
 
-    # 🔹 구분선
+    # 구분선
     st.sidebar.markdown(
         "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
     
-    # 3️⃣ 새로운 고객 정보 입력하기 버튼        
+    # 새로운 고객 정보 입력하기 버튼       
     if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
         st.session_state.page = "input"
         st.session_state.message_list = []
         st.session_state.script_context = ""
         st.session_state.kakao_text = ""
         st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
-        st.experimental_rerun()
+        st.experimental_rerun()    
 
-    # 4️⃣ 최하단 로그아웃 버튼
-    if st.sidebar.button("🚪 로그아웃", use_container_width=True):
+    # 최하단 로그아웃 버튼
+    if st.sidebar.button("로그아웃", use_container_width=True):
         st.session_state.page = "login"
         st.session_state.message_list = []
         st.experimental_rerun()
@@ -378,7 +388,7 @@ if st.session_state.page == "input":
 # ----------------- 챗봇 화면 -------------------
 elif st.session_state.page == "chatbot":
         
-    # 1️⃣ 현재 날짜와 시간 표시
+    # 현재 날짜와 시간 표시
     KST = timezone(timedelta(hours=9))
     now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
     st.sidebar.markdown(
@@ -386,80 +396,81 @@ elif st.session_state.page == "chatbot":
         unsafe_allow_html=True
     )
     
-    # 1️⃣ 최상단 인삿말 + 화이팅 멘트
+    # 최상단 인삿말 + 화이팅 멘트
     user_name = st.session_state['user_folder'].split('_')[0]
     st.sidebar.title(f"😊 {user_name}님, 반갑습니다!")
     st.sidebar.markdown("오늘도 멋진 상담 화이팅입니다! 💪")
 
-    # 🔹 구분선
+    # 구분선
     st.sidebar.markdown(
         "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
 
-    # 2️⃣ 저장된 대화 기록 + 불러오기/삭제하기
+    # 사용자 폴더 경로
     user_path = f"/data/history/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
-        
+
     history_files = os.listdir(user_path)
-    
+
     if history_files:
-        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", history_files)       
+        # 🔍 검색창 추가
+        search_keyword = st.sidebar.text_input("🔎 고객명으로 검색", placeholder="고객명 입력 후 ENTER", key="search_input")        
 
-        col1, col2 = st.sidebar.columns(2)
-                
-        with col1:
-            if st.button("불러오기", use_container_width=True):
-                # 👉 현재 불러온 파일명 저장                
-                with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
-                    loaded_data = json.load(f)
-                    if isinstance(loaded_data, list):
-                        st.session_state['script_context'] = ""
-                        st.session_state.message_list = loaded_data
-                        # 리스트 형식 파일은 고객명 추출 불가 → 기본값 유지
-                        st.session_state['customer_name'] = "고객명미입력"
-                    elif isinstance(loaded_data, dict):
-                        st.session_state['script_context'] = loaded_data.get("script_context", "")
-                        st.session_state.message_list = loaded_data.get("message_list", [])
+        # 파일명 필터링 (대소문자 무시)
+        filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
+        
+        # 필터링 결과 표시
+        if filtered_files:
+            selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
 
-                        # ✅ 고객명 보완 로직
-                        if "customer_name" in loaded_data:
-                            st.session_state['customer_name'] = loaded_data['customer_name']
+            col1, col2 = st.sidebar.columns(2)
+
+            with col1:
+                if st.button("불러오기", use_container_width=True):
+                    with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
+                        loaded_data = json.load(f)
+                        if isinstance(loaded_data, list):
+                            st.session_state['script_context'] = ""
+                            st.session_state.message_list = loaded_data
+                            st.session_state['customer_name'] = "고객명미입력"
+                        elif isinstance(loaded_data, dict):
+                            st.session_state['script_context'] = loaded_data.get("script_context", "")
+                            st.session_state.message_list = loaded_data.get("message_list", [])
+                            st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
                         else:
-                            # 👉 파일명에서 고객명 추출 (언더바 기준 첫 번째 부분)
-                            st.session_state['customer_name'] = selected_chat.split('_')[0]
+                            st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
+                            st.stop()
+
+                    st.session_state['current_file'] = selected_chat
+                    st.session_state.page = "chatbot"
+                    st.experimental_rerun()
+
+            with col2:
+                if st.button("🗑️ 삭제하기", use_container_width=True):
+                    file_path = f"{user_path}/{selected_chat}"
+                    if os.path.exists(file_path):
+                        try:
+                            os.remove(file_path)
+                            st.sidebar.success(f"{selected_chat} 삭제 완료!")
+                            st.experimental_rerun()
+                        except Exception as e:
+                            st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
                     else:
-                        st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
-                        st.stop()
-
-                st.session_state['current_file'] = selected_chat
-                st.session_state.page = "chatbot"
-                st.experimental_rerun()
-
-        with col2:                   
-            if st.button("🗑️ 삭제하기", use_container_width=True):
-                file_path = f"{user_path}/{selected_chat}"
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                        st.sidebar.success(f"{selected_chat} 삭제 완료!")
-                        st.experimental_rerun()   # 여기서 바로 종료
-                    except Exception as e:
-                        st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
-                else:
-                    st.sidebar.warning("이미 삭제된 파일입니다.")
-            
+                        st.sidebar.warning("이미 삭제된 파일입니다.")
+        else:
+            st.sidebar.info("검색 결과가 없습니다.")
     else:
         st.sidebar.info("저장된 대화가 없습니다.")
 
-    # 🔹 구분선
+    # 구분선
     st.sidebar.markdown(
         "<hr style='margin-top:14px; margin-bottom:28px;'>",
         unsafe_allow_html=True
     )
     
-    # 3️⃣ 새로운 고객 정보 입력하기 버튼       
+    # 새로운 고객 정보 입력하기 버튼       
     if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
         st.session_state.page = "input"
         st.session_state.message_list = []
@@ -468,8 +479,8 @@ elif st.session_state.page == "chatbot":
         st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
         st.experimental_rerun()    
 
-    # 4️⃣ 최하단 로그아웃 버튼
-    if st.sidebar.button("🚪 로그아웃", use_container_width=True):
+    # 최하단 로그아웃 버튼
+    if st.sidebar.button("로그아웃", use_container_width=True):
         st.session_state.page = "login"
         st.session_state.message_list = []
         st.experimental_rerun()
