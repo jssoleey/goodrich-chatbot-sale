@@ -2,7 +2,7 @@ import streamlit as st
 from llm_sale import get_chatbot_response, get_script_response, get_kakao_response
 import re
 import os, json
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # ----------------- 마크다운 자동 정리 함수 -------------------
 def format_markdown(text: str) -> str:
@@ -209,9 +209,10 @@ if st.session_state.page == "login":
 if st.session_state.page == "input":
 
     # 1️⃣ 현재 날짜와 시간 표시
-    now = datetime.now().strftime("%Y-%m-%d %a %H:%M")
+    KST = timezone(timedelta(hours=9))
+    now_korea = datetime.now(KST).strftime("%Y-%m-%d %H:%M 기준")
     st.sidebar.markdown(
-        f"<span style='font-size:18px;'>📅 <b>{now}</b></span>",
+        f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
         unsafe_allow_html=True
     )
     
