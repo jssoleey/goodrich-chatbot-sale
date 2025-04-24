@@ -71,7 +71,7 @@ st.markdown(
 )
 st.caption("입력하신 고객 정보에 따라 상담 스크립트를 만들어 드립니다!")
 st.caption("정보가 구체적일수록 좋은 스크립트가 나와요.")
-st.caption("스크립트 생성 이후 추가적인 대화를 통해 AI에게 상황을 현재 알려주세요!")
+st.caption("스크립트 생성 이후 추가적인 대화를 통해 현재 상황을 AI에게 알려주세요!")
 st.caption("대화가 끝나면 '카카오톡 문자 생성하기' 기능을 활용해보세요 😊")
 
 st.markdown('<p class="small-text"> </p>', unsafe_allow_html=True)
