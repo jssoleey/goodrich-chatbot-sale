@@ -210,7 +210,7 @@ if st.session_state.page == "input":
 
     # 1️⃣ 현재 날짜와 시간 표시
     KST = timezone(timedelta(hours=9))
-    now_korea = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
+    now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
     st.sidebar.markdown(
         f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
         unsafe_allow_html=True
@@ -385,7 +385,7 @@ elif st.session_state.page == "chatbot":
 
     # 1️⃣ 현재 날짜와 시간 표시
     KST = timezone(timedelta(hours=9))
-    now_korea = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
+    now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
     st.sidebar.markdown(
         f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
         unsafe_allow_html=True
