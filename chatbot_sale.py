@@ -319,11 +319,11 @@ if st.session_state.page == "input":
     gender = st.selectbox("고객 성별", ["성별을 선택하세요", "남성", "여성"])
     insurance_status = st.text_input(
         label="기존 보험 상태",
-        placeholder="예: 태아보험 상담 신청, 예전에 보험 가입, 최근 내용은 기억 못함"
+        placeholder="예: 태아보험 상담 신청, 10년 전에 가입한 암보험과 실손보험이 있음, 보장 내용은 잘 모름"
     )
     interest = st.text_input(
         "고객 관심 보험",
-        placeholder="예: 치매보험, 간병보험"
+        placeholder="예: 태아보험, 간병보험"
     )
 
     reaction = st.text_input(
@@ -333,7 +333,7 @@ if st.session_state.page == "input":
 
     etc = st.text_input(
         "기타 상황",
-        placeholder="예: 기존 보험료가 다소 부담스러웠음, 배우자 병간호 경험으로 장기 보장 필요성 느낌"
+        placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음"
     )
 
 
@@ -382,11 +382,12 @@ if st.session_state.page == "input":
                 
 # ----------------- 챗봇 화면 -------------------
 elif st.session_state.page == "chatbot":
-        
+
     # 1️⃣ 현재 날짜와 시간 표시
-    now = datetime.now().strftime("%Y-%m-%d %a %H:%M")
+    KST = timezone(timedelta(hours=9))
+    now_korea = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
     st.sidebar.markdown(
-        f"<span style='font-size:18px;'>📅 <b>{now}</b></span>",
+        f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
         unsafe_allow_html=True
     )
     
