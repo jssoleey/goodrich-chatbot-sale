@@ -210,7 +210,7 @@ if st.session_state.page == "input":
 
     # 1️⃣ 현재 날짜와 시간 표시
     KST = timezone(timedelta(hours=9))
-    now_korea = datetime.now(KST).strftime("%Y-%m-%d %H:%M 기준")
+    now_korea = datetime.now(KST).strftime("%Y-%m-%d %H:%M")
     st.sidebar.markdown(
         f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
         unsafe_allow_html=True
