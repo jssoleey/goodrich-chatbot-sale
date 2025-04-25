@@ -367,7 +367,7 @@ if st.session_state.page == "input":
     # 고객 연령대 선택 (라디오 버튼)
     age_group = st.radio(
         "고객 연령대",
-        ["20대", "30대", "40대", "50대", "60대", "70대대 이상"],
+        ["20대", "30대", "40대", "50대", "60대", "70대 이상"],
         key="age_radio",
         horizontal=False   # 세로 배치 (기본값)
     )
