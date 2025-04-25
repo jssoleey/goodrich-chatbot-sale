@@ -160,12 +160,7 @@ st.markdown(
     }
     /* 사이드바 배경색 변경 */
     section[data-testid="stSidebar"] {
-        background-color: #ebedf1;  /* 원하는 색상 코드 */
-    }
-    /* 모든 텍스트 입력 박스 배경색 변경 */
-    div[data-testid="stTextInput"] > div > input {
-        background-color: #ebedf1;   /* 연한 민트색 */
-        color: black;                /* 글자색 */
+        background-color: #ced4db;  /* 원하는 색상 코드 */
     }
     </style>
     """,
