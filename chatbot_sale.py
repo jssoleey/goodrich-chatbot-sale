@@ -160,7 +160,40 @@ st.markdown(
     }
     /* 사이드바 배경색 변경 */
     section[data-testid="stSidebar"] {
-        background-color: #ced4db;  /* 원하는 색상 코드 */
+        background-color: #dfe5ed;  /* 원하는 색상 코드 */
+    }
+    /* input box 색상 */
+    input[placeholder="이름(홍길동)"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="휴대폰 끝번호 네 자리(0000)"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="예: 홍길동"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="기존 보험 상태"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="예: 태아보험 상담 신청, 10년 전에 가입한 암보험과 실손보험이 있음, 보장 내용은 잘 모름"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="예: 태아보험, 간병보험"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="예: 보험료를 저렴하게 가입하고 싶음, 최근 병원 진료 후 필요성을 느껴 상담 신청"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
+    }
+    input[placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음"] {
+        background-color: #e4e9f0 !important;
+        color: black !important;
     }
     </style>
     """,
@@ -330,9 +363,22 @@ if st.session_state.page == "input":
         "<h4 style='margin-bottom: 20px;'>👤 고객 정보를 입력해 주세요</h4>",
         unsafe_allow_html=True
     )
-    name = st.text_input("고객 이름")
-    age_group = st.selectbox("고객 연령대", ["연령대를 선택하세요", "20대", "30대", "40대", "50대", "60대 초반", "60대 후반 이상"])
-    gender = st.selectbox("고객 성별", ["성별을 선택하세요", "남성", "여성"])
+    name = st.text_input("고객 이름", placeholder = "예: 홍길동")
+    # 고객 연령대 선택 (라디오 버튼)
+    age_group = st.radio(
+        "고객 연령대",
+        ["20대", "30대", "40대", "50대", "60대", "70대대 이상"],
+        key="age_radio",
+        horizontal=False   # 세로 배치 (기본값)
+    )
+
+    # 고객 성별 선택 (라디오 버튼)
+    gender = st.radio(
+        "고객 성별",
+        ["남성", "여성"],
+        key="gender_radio",
+        horizontal=True     # 성별은 가로 배치 추천
+    )
     insurance_status = st.text_input(
         label="기존 보험 상태",
         placeholder="예: 태아보험 상담 신청, 10년 전에 가입한 암보험과 실손보험이 있음, 보장 내용은 잘 모름"
