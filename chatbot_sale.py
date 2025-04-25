@@ -4,6 +4,9 @@ import re
 import os, json
 from datetime import datetime, timedelta, timezone
 
+# ----------------- CHATBOT TYPE -------------------
+CHATBOT_TYPE = "sale"
+
 # ----------------- 마크다운 자동 정리 함수 -------------------
 def format_markdown(text: str) -> str:
     lines = text.strip().splitlines()
@@ -278,7 +281,7 @@ if st.session_state.page == "input":
     )
 
     # 사용자 폴더 경로
-    user_path = f"/data/history/{st.session_state['user_folder']}"
+    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -344,13 +347,14 @@ if st.session_state.page == "input":
         unsafe_allow_html=True
     )
     
-    # 새로운 고객 정보 입력하기 버튼       
+    # 새로운 고객 정보 입력하기 버튼              
     if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
         st.session_state.page = "input"
         st.session_state.message_list = []
         st.session_state.script_context = ""
         st.session_state.kakao_text = ""
-        st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
+        st.session_state['current_file'] = ""
+        st.session_state['customer_name'] = ""   # 👉 고객명 초기화
         st.experimental_rerun()    
 
     # 최하단 로그아웃 버튼
@@ -411,6 +415,10 @@ if st.session_state.page == "input":
                 and age_group != "연령대를 선택하세요"
                 and gender != "성별을 선택하세요"
             ):
+                # 💡 세션 초기화 추가
+                st.session_state.kakao_text = ""
+                st.session_state['current_file'] = ""
+                
                 # 고객 이름 세션에 저장
                 st.session_state['customer_name'] = name
                 
@@ -462,7 +470,7 @@ elif st.session_state.page == "chatbot":
     )
 
     # 사용자 폴더 경로
-    user_path = f"/data/history/{st.session_state['user_folder']}"
+    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -534,7 +542,8 @@ elif st.session_state.page == "chatbot":
         st.session_state.message_list = []
         st.session_state.script_context = ""
         st.session_state.kakao_text = ""
-        st.session_state['current_file'] = ""  # 👉 덮어쓰기 방지
+        st.session_state['current_file'] = ""
+        st.session_state['customer_name'] = ""   # 👉 고객명 초기화
         st.experimental_rerun()    
 
     # 최하단 로그아웃 버튼
@@ -573,18 +582,21 @@ elif st.session_state.page == "chatbot":
     # 👉 버튼 영역: 두 개의 버튼을 나란히 배치
     col1, col2 = st.columns([1, 1])
     
-    with col1:
+    with col1:               
         if st.button("💬 카카오톡 발송용 문자 생성하기", use_container_width=True):
-            with st.spinner("카카오톡 문자를 생성 중입니다..."):
-                kakao_message = get_kakao_response(
-                    script_context = st.session_state['script_context'],
-                    message_list = st.session_state['message_list']
-                )
-                st.session_state['kakao_text'] = "".join(kakao_message)
+            if not st.session_state.get('script_context'):
+                st.warning("⚠️ 상담 스크립트가 없습니다. 먼저 스크립트를 생성해 주세요.")
+            else:
+                with st.spinner("카카오톡 문자를 생성 중입니다..."):
+                    kakao_message = get_kakao_response(
+                        script_context = st.session_state['script_context'],
+                        message_list = st.session_state['message_list']
+                    )
+                    st.session_state['kakao_text'] = "".join(kakao_message)
                                 
     with col2:
         if st.button("💾 대화 저장하기", use_container_width=True):
-            user_path = f"/data/history/{st.session_state['user_folder']}"
+            user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
             if not os.path.exists(user_path):
                 os.makedirs(user_path)
             if st.session_state.message_list:
