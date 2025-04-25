@@ -158,6 +158,15 @@ st.markdown(
         margin-top: -5px;
         margin-bottom: -5px;
     }
+    /* 사이드바 배경색 변경 */
+    section[data-testid="stSidebar"] {
+        background-color: #ebedf1;  /* 원하는 색상 코드 */
+    }
+    /* 모든 텍스트 입력 박스 배경색 변경 */
+    div[data-testid="stTextInput"] > div > input {
+        background-color: #ebedf1;   /* 연한 민트색 */
+        color: black;                /* 글자색 */
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -236,7 +245,7 @@ if st.session_state.page == "input":
 
     # 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:12px; margin-bottom:26px;'>",
+        "<hr style='margin-top:18px; margin-bottom:32px;'>",
         unsafe_allow_html=True
     )
 
@@ -303,7 +312,7 @@ if st.session_state.page == "input":
 
     # 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:14px; margin-bottom:28px;'>",
+        "<hr style='margin-top:20px; margin-bottom:34px;'>",
         unsafe_allow_html=True
     )
     
@@ -407,7 +416,7 @@ elif st.session_state.page == "chatbot":
 
     # 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:12px; margin-bottom:26px;'>",
+        "<hr style='margin-top:18px; margin-bottom:32px;'>",
         unsafe_allow_html=True
     )
 
@@ -474,7 +483,7 @@ elif st.session_state.page == "chatbot":
 
     # 구분선
     st.sidebar.markdown(
-        "<hr style='margin-top:14px; margin-bottom:28px;'>",
+        "<hr style='margin-top:20px; margin-bottom:34px;'>",
         unsafe_allow_html=True
     )
     
