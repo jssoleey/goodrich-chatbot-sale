@@ -3,6 +3,9 @@ from llm_sale import get_chatbot_response, get_script_response, get_kakao_respon
 import re
 import os, json
 from datetime import datetime, timedelta, timezone
+import uuid
+from langchain_community.chat_message_histories import ChatMessageHistory
+from llm_sale import store
 
 # ----------------- CHATBOT TYPE -------------------
 CHATBOT_TYPE = "sale"
@@ -253,10 +256,10 @@ if st.session_state.page == "login":
                 st.session_state['user_folder'] = f"{name}_{emp_id}"
                 st.session_state['user_name'] = name   # ✅ 상담원 이름 따로 저장
                 st.session_state.page = "input"
+                st.session_state.session_id = f"{name}_{uuid.uuid4()}"
                 st.experimental_rerun()
             else:
-                st.warning("이름과 생일을 모두 입력해 주세요.")
-
+                st.warning("이름과 전화번호를 모두 입력해 주세요.")
 
 # ----------------- 고객 정보 입력 화면 -------------------
 if st.session_state.page == "input":
@@ -281,7 +284,7 @@ if st.session_state.page == "input":
     )
 
     # 사용자 폴더 경로
-    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+    user_path = f"./data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -347,15 +350,19 @@ if st.session_state.page == "input":
         unsafe_allow_html=True
     )
     
-    # 새로운 고객 정보 입력하기 버튼              
+    # 새로운 고객 정보 입력하기 버튼                      
     if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
         st.session_state.page = "input"
         st.session_state.message_list = []
         st.session_state.script_context = ""
         st.session_state.kakao_text = ""
         st.session_state['current_file'] = ""
-        st.session_state['customer_name'] = ""   # 👉 고객명 초기화
-        st.experimental_rerun()    
+        st.session_state['customer_name'] = ""
+
+        # ⭐ 세션 히스토리 초기화
+        store[st.session_state.session_id] = ChatMessageHistory()
+
+        st.experimental_rerun()   
 
     # 최하단 로그아웃 버튼
     if st.sidebar.button("로그아웃", use_container_width=True):
@@ -470,7 +477,7 @@ elif st.session_state.page == "chatbot":
     )
 
     # 사용자 폴더 경로
-    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+    user_path = f"./data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -543,7 +550,11 @@ elif st.session_state.page == "chatbot":
         st.session_state.script_context = ""
         st.session_state.kakao_text = ""
         st.session_state['current_file'] = ""
-        st.session_state['customer_name'] = ""   # 👉 고객명 초기화
+        st.session_state['customer_name'] = ""
+
+        # ⭐ 세션 히스토리 초기화
+        store[st.session_state.session_id] = ChatMessageHistory()
+
         st.experimental_rerun()    
 
     # 최하단 로그아웃 버튼
@@ -596,7 +607,7 @@ elif st.session_state.page == "chatbot":
                                 
     with col2:
         if st.button("💾 대화 저장하기", use_container_width=True):
-            user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+            user_path = f"./data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
             if not os.path.exists(user_path):
                 os.makedirs(user_path)
             if st.session_state.message_list:
