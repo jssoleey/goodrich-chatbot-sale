@@ -22,6 +22,7 @@ SYSTEM_PROMPT_SCRIPT = (
     "당신은 보험 전화 상담 전문 AI입니다. "
     "전화를 통해 고객에게 친근하고 신뢰감 있는 보험 상담을 제공합니다. "
     "실제 사람이 말하듯 자연스럽고 실용적인 멘트를 작성해야 하며, 상담원이 현장에서 그대로 사용할 수 있을 정도로 현실적이어야 합니다.\n\n"
+    "고객 이름과 상담원 이름을 혼동하지 말고, 반드시 각 정보에 맞게 사용하세요."
 
     "[상담 스크립트 출력 형식 - 반드시 아래 순서와 마크다운 제목 형식을 지켜주세요]\n"
     "각 단계는 다음과 같이 출력하세요:\n"
@@ -39,8 +40,7 @@ SYSTEM_PROMPT_SCRIPT = (
     "[작성 스타일]\n"
     "- 스크립트의 첫 번째 단계인 `#### 1. 첫 인사 및 친근한 접근`에서는 상담원이 본인의 이름을 말하며 인사하도록 작성하세요."
     "- 예시: \"안녕하세요, 저는 굿리치 상담사 **{상담원 이름}**입니다! 😊\""
-    "- '{상담원 이름}'은 이미 입력된 값으로 제공되므로, 변경하거나 다른 이름으로 대체하지 않습니다."
-    "- ⚠️ 절대 임의의 이름(예: 김성훈, 이영희 등)을 생성하지 말고, 제공된 **{상담원 이름}**만 사용하세요."
+    "- 상담원 이름은 실제 입력받은 이름으로 자동 대체됩니다."
     "- 각 항목 제목은 반드시 마크다운 형식(`####`)으로 작성하고, 하단에 자연스럽게 말하듯 이어주세요.\n"
     "- 고객 이름은 중간중간 자연스럽게 포함시켜 친근함을 표현해주세요.\n"
     "- 문장은 실제 상담원이 전화로 말하듯 구어체로 작성해주세요. 번역투/딱딱한 표현은 피해주세요.\n"
@@ -134,15 +134,7 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
     return store[session_id]
 
 # ======================== 스크립트 생성 ========================
-def get_script_chain():
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT_SCRIPT),
-        MessagesPlaceholder("chat_history"),
-        ("human", "{input}")
-    ])
-    return prompt | get_llm() | StrOutputParser()
-
-def get_script_response(user_message, session_id="script_session"):
+def get_script_response(user_message):
     try:
         # 1️⃣ 상담원 이름 불러오기 (로그인 시 저장된 값)
         consultant_name = st.session_state.get('user_name', '상담원')
@@ -164,7 +156,7 @@ def get_script_response(user_message, session_id="script_session"):
 
         result = chain.invoke(
             {"input": user_message},
-            config={"configurable": {"session_id": session_id}}
+            config={"configurable": {"session_id": st.session_state.session_id}}
         )
         return iter([result])
     except Exception as e:
@@ -181,7 +173,7 @@ def get_chatbot_chain():
     ])
     return prompt | get_llm() | StrOutputParser()
 
-def get_chatbot_response(user_message, script_context="", session_id="chatbot_session"):
+def get_chatbot_response(user_message, script_context=""):
     try:
         full_input = f"[현재 상담 스크립트 요약]\n{script_context}\n\n[질문]\n{user_message}"
         chain = RunnableWithMessageHistory(
@@ -192,7 +184,7 @@ def get_chatbot_response(user_message, script_context="", session_id="chatbot_se
         )
         result = chain.invoke(
             {"input": full_input},
-            config={"configurable": {"session_id": session_id}}
+            config={"configurable": {"session_id": st.session_state.session_id}}
         )
         return iter([result])
     except Exception as e:
@@ -213,7 +205,7 @@ def generate_conversation_summary(message_list):
                     summary_points.append(f"- 제안 멘트: {line[2:]}")
     return "\n".join(summary_points)
     
-def get_kakao_response(script_context, message_list, session_id="kakao_session"):
+def get_kakao_response(script_context, message_list):
     try:
         conversation_summary = generate_conversation_summary(message_list)
 
@@ -299,9 +291,11 @@ def get_kakao_response(script_context, message_list, session_id="kakao_session")
             history_messages_key="chat_history",
         )
 
+        kakao_session_id = f"{st.session_state.session_id}_kakao"
+
         result = chain.invoke(
             {"input": "카카오톡 메시지를 생성해 주세요."},
-            config={"configurable": {"session_id": session_id}}
+            config={"configurable": {"session_id": kakao_session_id}}
         )
         return iter([result])
 
