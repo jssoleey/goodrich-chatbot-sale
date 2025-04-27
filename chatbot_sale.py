@@ -284,7 +284,7 @@ if st.session_state.page == "input":
     )
 
     # 사용자 폴더 경로
-    user_path = f"./data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -477,7 +477,7 @@ elif st.session_state.page == "chatbot":
     )
 
     # 사용자 폴더 경로
-    user_path = f"./data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -607,7 +607,7 @@ elif st.session_state.page == "chatbot":
                                 
     with col2:
         if st.button("💾 대화 저장하기", use_container_width=True):
-            user_path = f"./data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+            user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
             if not os.path.exists(user_path):
                 os.makedirs(user_path)
             if st.session_state.message_list:
