@@ -250,6 +250,10 @@ def load_chat_history(user_path, selected_chat):
             st.session_state['script_context'] = loaded_data.get("script_context", "")
             st.session_state.message_list = loaded_data.get("message_list", [])
             st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
+            st.session_state['customer_insurance'] = loaded_data.get("customer_insurance", "정보 없음")
+            st.session_state['customer_interest'] = loaded_data.get("customer_interest", "정보 없음")
+            st.session_state['customer_reaction'] = loaded_data.get("customer_reaction", "정보 없음")
+            st.session_state['customer_etc'] = loaded_data.get("customer_etc", "없음")
         else:
             st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
             st.stop()
@@ -449,7 +453,6 @@ if st.session_state.page == "input":
         "기타 상황",
         placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음"
     )
-    st.caption("")
 
     col1, col2, col3 = st.columns([1, 2, 1])   # 비율을 조정해서 가운데로
 
@@ -589,6 +592,10 @@ elif st.session_state.page == "chatbot":
                 # 3️⃣ 데이터 저장
                 data_to_save = {
                     "customer_name": customer_name,
+                    "customer_insurance": st.session_state.get('customer_insurance', ''),
+                    "customer_interest": st.session_state.get('customer_interest', ''),
+                    "customer_reaction": st.session_state.get('customer_reaction', ''),
+                    "customer_etc": st.session_state.get('customer_etc', ''),
                     "script_context": st.session_state.get('script_context', ''),
                     "message_list": st.session_state.message_list
                 }
