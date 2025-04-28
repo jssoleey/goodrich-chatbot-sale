@@ -449,6 +449,7 @@ if st.session_state.page == "input":
         "기타 상황",
         placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음"
     )
+    st.caption("")
 
     col1, col2, col3 = st.columns([1, 2, 1])   # 비율을 조정해서 가운데로
 
