@@ -7,82 +7,22 @@ import uuid
 from langchain_community.chat_message_histories import ChatMessageHistory
 from llm_sale import store
 
-# ----------------- CHATBOT TYPE -------------------
+# ----------------- 전역 변수 -------------------
 CHATBOT_TYPE = "sale"
+URLS = {
+    "page_icon":"https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/logo.png?raw=true",
+    "top_image": "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/top_box.png?raw=true",
+    "bottom_image": "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/bottom_box.png?raw=true",
+    "logo": "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/logo.png?raw=true",
+    "user_avatar": "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/user_avatar.png?raw=true",
+    "ai_avatar": "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/ai_avatar.png?raw=true"
+}
 
-# ----------------- 마크다운 자동 정리 함수 -------------------
-def format_markdown(text: str) -> str:
-    lines = text.strip().splitlines()
-    formatted_lines = []
-    indent_next = False
-
-    for line in lines:
-        line = line.strip()
-        if not line:
-            formatted_lines.append("")
-            indent_next = False
-            continue
-
-        if re.match(r"^(▶️|✅|📌|❗|📝|📍)\s*[^:：]+[:：]?", line):
-            title = re.sub(r"[:：]\s*$", "", line.strip())
-            formatted_lines.append(f"**{title}**\n")
-            indent_next = False
-            continue
-
-        if re.match(r"^[-•]\s*\*\*.*\*\*", line):
-            formatted_lines.append(re.sub(r"^[-•]\s*", "- ", line))
-            indent_next = True
-            continue
-
-        if re.match(r"^[-•]\s*", line):
-            if indent_next:
-                formatted_lines.append("    " + re.sub(r"^[-•]\s*", "- ", line))
-            else:
-                formatted_lines.append(re.sub(r"^[-•]\s*", "- ", line))
-            continue
-
-        formatted_lines.append(line)
-        indent_next = False
-
-    return "\n".join(formatted_lines).strip() + "\n"
-
-# ----------------- 페이지 설정 -------------------
+# ----------------- config -------------------
 st.set_page_config( 
     page_title="스마트 컨설팅 매니저",
-    page_icon="https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/logo.png?raw=true"
+    page_icon=URLS["page_icon"]
 )
-
-# 이미지 URL
-top_image_url = "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/top_box.png?raw=true"
-
-# 최상단에 이미지 출력
-st.markdown(
-    f"""
-    <div style="text-align:center; margin-bottom:20px;">
-        <img src="{top_image_url}" alt="Top Banner" style="width:100%; max-width:1000px;">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-logo_url = "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/logo.png?raw=true"
-st.markdown(
-    f"""
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: -10px;">
-        <img src="{logo_url}" alt="logo" width="50">
-        <h2 style="margin: 0;">스마트 컨설팅 매니저</h2>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-st.caption("입력하신 고객 정보에 따라 상담 스크립트를 만들어 드립니다!")
-st.caption("정보가 구체적일수록 좋은 스크립트가 나와요.")
-st.caption("스크립트 생성 이후 추가적인 대화를 통해 AI에게 상황을 현재 알려주세요!")
-st.caption("대화가 끝나면 '카카오톡 문자 생성하기' 기능을 활용해보세요 😊")
-
-st.markdown('<p class="small-text"> </p>', unsafe_allow_html=True)
-st.markdown('<p class="small-text">모든 답변은 참고용으로 활용해주세요.</p>', unsafe_allow_html=True)
-st.markdown('<p class="small-text"> </p>', unsafe_allow_html=True)
 
 # ----------------- CSS -------------------
 st.markdown(
@@ -206,16 +146,152 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ----------------- 세션 상태 초기화 -------------------
-if 'page' not in st.session_state:
-    st.session_state.page = "login"
+# ----------------- 마크다운 자동 정리 함수 -------------------
+def format_markdown(text: str) -> str:
+    lines = text.strip().splitlines()
+    formatted_lines = []
+    indent_next = False
 
-if 'page' not in st.session_state:
-    st.session_state.page = "input"  # 시작은 고객 정보 입력 화면
+    for line in lines:
+        line = line.strip()
+        if not line:
+            formatted_lines.append("")
+            indent_next = False
+            continue
 
-if 'message_list' not in st.session_state:
+        if re.match(r"^(▶️|✅|📌|❗|📝|📍)\s*[^:：]+[:：]?", line):
+            title = re.sub(r"[:：]\s*$", "", line.strip())
+            formatted_lines.append(f"**{title}**\n")
+            indent_next = False
+            continue
+
+        if re.match(r"^[-•]\s*\*\*.*\*\*", line):
+            formatted_lines.append(re.sub(r"^[-•]\s*", "- ", line))
+            indent_next = True
+            continue
+
+        if re.match(r"^[-•]\s*", line):
+            if indent_next:
+                formatted_lines.append("    " + re.sub(r"^[-•]\s*", "- ", line))
+            else:
+                formatted_lines.append(re.sub(r"^[-•]\s*", "- ", line))
+            continue
+
+        formatted_lines.append(line)
+        indent_next = False
+
+    return "\n".join(formatted_lines).strip() + "\n"
+
+# ----------------- 사이드바 설정 -------------------
+def render_sidebar():
+    # 현재 날짜 표시
+    KST = timezone(timedelta(hours=9))
+    now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
+    st.sidebar.markdown(
+        f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
+        unsafe_allow_html=True
+    )
+
+    user_name = st.session_state['user_folder'].split('_')[0]
+    st.sidebar.title(f"😊 {user_name}님, 반갑습니다!")
+    st.sidebar.markdown("오늘도 멋진 상담 화이팅입니다! 💪")
+
+    st.sidebar.markdown("<hr style='margin-top:14px; margin-bottom:28px;'>", unsafe_allow_html=True)
+
+    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
+    if not os.path.exists(user_path):
+        os.makedirs(user_path)
+
+    history_files = os.listdir(user_path)
+
+    if history_files:
+        search_keyword = st.sidebar.text_input("🔎 고객명으로 검색", placeholder="고객명 입력 후 ENTER", key="search_input")        
+        filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
+        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
+
+        col1, col2 = st.sidebar.columns(2)
+
+        with col1:
+            if st.button("불러오기", use_container_width=True):
+                # 👉 기존 불러오기 로직 호출
+                load_chat_history(user_path, selected_chat)
+
+        with col2:
+            if st.button("🗑️ 삭제하기", use_container_width=True):
+                delete_chat_history(user_path, selected_chat)
+
+        if not filtered_files and search_keyword:
+            st.sidebar.markdown(
+                "<div style='padding:6px; background-color:#f0f0f0; border-radius:5px;'>🔍 검색 결과가 없습니다.</div>",
+                unsafe_allow_html=True
+            )
+    else:
+        st.sidebar.info("저장된 대화가 없습니다.")
+
+    st.sidebar.markdown("<hr style='margin-top:14px; margin-bottom:28px;'>", unsafe_allow_html=True)
+
+    if st.sidebar.button("🆕 새로운 민원 상황 입력하기", use_container_width=True):
+        reset_session_for_new_case()
+
+    if st.sidebar.button("로그아웃", use_container_width=True):
+        st.session_state.page = "login"
+        st.session_state.message_list = []
+        st.experimental_rerun()
+            
+# ----------------- 대화 불러오기 -------------------        
+def load_chat_history(user_path, selected_chat):
+    with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
+        loaded_data = json.load(f)
+        if isinstance(loaded_data, list):
+            st.session_state['script_context'] = ""
+            st.session_state.message_list = loaded_data
+            st.session_state['customer_name'] = "고객명미입력"
+        elif isinstance(loaded_data, dict):
+            st.session_state['script_context'] = loaded_data.get("script_context", "")
+            st.session_state.message_list = loaded_data.get("message_list", [])
+            st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
+        else:
+            st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
+            st.stop()
+
+    # ⭐ chat_history 복원
+    chat_history = ChatMessageHistory()
+    for msg in st.session_state.message_list:
+        if isinstance(msg, dict) and 'role' in msg and 'content' in msg:
+            if msg['role'] == 'user':
+                chat_history.add_user_message(msg['content'])
+            elif msg['role'] == 'ai':
+                chat_history.add_ai_message(msg['content'])
+    store[st.session_state.session_id] = chat_history
+
+    st.session_state['current_file'] = selected_chat
+    st.session_state.page = "chatbot"
+    st.experimental_rerun()
+    
+# ----------------- 대화 삭제하기 -------------------
+def delete_chat_history(user_path, selected_chat):
+    file_path = f"{user_path}/{selected_chat}"
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            st.sidebar.success(f"{selected_chat} 삭제 완료!")
+            st.experimental_rerun()
+        except Exception as e:
+            st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
+    else:
+        st.sidebar.warning("이미 삭제된 파일입니다.")
+
+# ----------------- 세션 초기화 -------------------        
+def reset_session_for_new_case():
+    st.session_state.page = "input"
     st.session_state.message_list = []
-
+    st.session_state.script_context = ""
+    st.session_state.kakao_text = ""
+    st.session_state['current_file'] = ""
+    st.session_state['customer_name'] = ""
+    store[st.session_state.session_id] = ChatMessageHistory()
+    st.experimental_rerun()
+    
 # ----------------- 메시지 표시 함수 -------------------
 def display_message(role, content, avatar_url):
     if role == "user":
@@ -242,8 +318,76 @@ def display_message(role, content, avatar_url):
         st.markdown(display_html, unsafe_allow_html=True)
         st.markdown(format_markdown(content), unsafe_allow_html=False)
         st.markdown("</div></div>", unsafe_allow_html=True)
+        
+# ----------------- 고객 정보 요약 함수 -------------------
+def render_customer_info():
+    st.markdown("""
+        <div style="background-color:#f0f8ff; padding:15px; border:1px solid #aac; border-radius:8px; margin-bottom:20px;">
+            <h4>📄 고객 정보 요약</h4>
+            <ul>
+                <li><b>이름:</b> {name}</li>
+                <li><b>기존 보험:</b> {insurance}</li>
+                <li><b>관심 보험:</b> {interest}</li>
+                <li><b>고객 반응:</b> {reaction}</li>
+                <li><b>기타 상황:</b> {etc}</li>
+            </ul>
+        </div>
+    """.format(
+        name = st.session_state.get('customer_name', '고객명미입력'),
+        insurance = st.session_state.get('customer_insurance', '정보 없음'),
+        interest = st.session_state.get('customer_interest', '정보 없음'),
+        reaction = st.session_state.get('customer_reaction', '정보 없음'),
+        etc = st.session_state.get('customer_etc', '없음')
+    ), unsafe_allow_html=True)
+        
+# ----------------- 페이지 설정 -------------------
+# 이미지 URL
+top_image_url = URLS["top_image"]
 
-# ----------------- 로그인 -------------------
+# 최상단에 이미지 출력
+st.markdown(
+    f"""
+    <div style="text-align:center; margin-bottom:20px;">
+        <img src="{top_image_url}" alt="Top Banner" style="width:100%; max-width:1000px;">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+logo_url = URLS["logo"]
+st.markdown(
+    f"""
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: -10px;">
+        <img src="{logo_url}" alt="logo" width="50">
+        <h2 style="margin: 0;">스마트 컨설팅 매니저</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+st.caption("입력하신 고객 정보에 따라 상담 스크립트를 만들어 드립니다!")
+st.caption("정보가 구체적일수록 좋은 스크립트가 나와요.")
+st.caption("스크립트 생성 이후 추가적인 대화를 통해 AI에게 상황을 현재 알려주세요!")
+st.caption("대화가 끝나면 '카카오톡 문자 생성하기' 기능을 활용해보세요 😊")
+
+st.markdown('<p class="small-text"> </p>', unsafe_allow_html=True)
+st.markdown('<p class="small-text">모든 답변은 참고용으로 활용해주세요.</p>', unsafe_allow_html=True)
+st.markdown('<p class="small-text"> </p>', unsafe_allow_html=True)
+
+# ----------------- 세션 상태 초기화 -------------------
+def initialize_session():
+    defaults = {
+        'page': 'login',
+        'message_list': [],
+        'sidebar_mode': 'default'
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
+            
+# 호출
+initialize_session()
+
+# ----------------- 로그인 화면 -------------------
 if st.session_state.page == "login":
     name = st.text_input(label = "ID", placeholder="이름(홍길동)")
     emp_id = st.text_input(label = "Password", placeholder="휴대폰 끝번호 네 자리(0000)")
@@ -264,111 +408,8 @@ if st.session_state.page == "login":
 # ----------------- 고객 정보 입력 화면 -------------------
 if st.session_state.page == "input":
 
-    # 현재 날짜와 시간 표시
-    KST = timezone(timedelta(hours=9))
-    now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
-    st.sidebar.markdown(
-        f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
-        unsafe_allow_html=True
-    )
-    
-    # 최상단 인삿말 + 화이팅 멘트
-    user_name = st.session_state['user_folder'].split('_')[0]
-    st.sidebar.title(f"😊 {user_name}님, 반갑습니다!")
-    st.sidebar.markdown("오늘도 멋진 상담 화이팅입니다! 💪")
-
-    # 구분선
-    st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
-        unsafe_allow_html=True
-    )
-
-    # 사용자 폴더 경로
-    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
-    if not os.path.exists(user_path):
-        os.makedirs(user_path)
-
-    history_files = os.listdir(user_path)
-
-    if history_files:
-        # 🔍 검색창 추가
-        search_keyword = st.sidebar.text_input("🔎 고객명으로 검색", placeholder="고객명 입력 후 ENTER", key="search_input")        
-
-        # 파일명 필터링 (대소문자 무시)
-        filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
-        
-        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
-        
-        col1, col2 = st.sidebar.columns(2)
-        
-
-        with col1:
-            if st.button("불러오기", use_container_width=True):
-                with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
-                    loaded_data = json.load(f)
-                    if isinstance(loaded_data, list):
-                        st.session_state['script_context'] = ""
-                        st.session_state.message_list = loaded_data
-                        st.session_state['customer_name'] = "고객명미입력"
-                    elif isinstance(loaded_data, dict):
-                        st.session_state['script_context'] = loaded_data.get("script_context", "")
-                        st.session_state.message_list = loaded_data.get("message_list", [])
-                        st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
-                    else:
-                        st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
-                        st.stop()
-
-                st.session_state['current_file'] = selected_chat
-                st.session_state.page = "chatbot"
-                st.experimental_rerun()
-
-        with col2:
-            if st.button("🗑️ 삭제하기", use_container_width=True):
-                file_path = f"{user_path}/{selected_chat}"
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                        st.sidebar.success(f"{selected_chat} 삭제 완료!")
-                        st.experimental_rerun()
-                    except Exception as e:
-                        st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
-                else:
-                    st.sidebar.warning("이미 삭제된 파일입니다.")
-        # ✅ 검색 결과 없을 때만 메시지 출력
-        if not filtered_files and search_keyword:
-            st.sidebar.markdown(
-                "<div style='padding:6px; background-color:#f0f0f0; border-radius:5px;'>🔍 검색 결과가 없습니다.</div>",
-                unsafe_allow_html=True
-            )
-            
-    else:
-        st.sidebar.info("저장된 대화가 없습니다.")
-
-    # 구분선
-    st.sidebar.markdown(
-        "<hr style='margin-top:20px; margin-bottom:34px;'>",
-        unsafe_allow_html=True
-    )
-    
-    # 새로운 고객 정보 입력하기 버튼                      
-    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
-        st.session_state.page = "input"
-        st.session_state.message_list = []
-        st.session_state.script_context = ""
-        st.session_state.kakao_text = ""
-        st.session_state['current_file'] = ""
-        st.session_state['customer_name'] = ""
-
-        # ⭐ 세션 히스토리 초기화
-        store[st.session_state.session_id] = ChatMessageHistory()
-
-        st.experimental_rerun()   
-
-    # 최하단 로그아웃 버튼
-    if st.sidebar.button("로그아웃", use_container_width=True):
-        st.session_state.page = "login"
-        st.session_state.message_list = []
-        st.experimental_rerun()
+    # 사이드바 호출
+    render_sidebar()
     
     st.markdown(
         "<h4 style='margin-bottom: 20px;'>👤 고객 정보를 입력해 주세요</h4>",
@@ -428,6 +469,10 @@ if st.session_state.page == "input":
                 
                 # 고객 이름 세션에 저장
                 st.session_state['customer_name'] = name
+                st.session_state['customer_insurance'] = insurance_status
+                st.session_state['customer_interest'] = interest
+                st.session_state['customer_reaction'] = reaction
+                st.session_state['customer_etc'] = etc
                 
                 customer_info = f"""
                     - 고객 이름: {name}
@@ -439,7 +484,15 @@ if st.session_state.page == "input":
                     - 기타 상황: {etc}
                     """
                 with st.spinner("상담 스크립트를 생성 중입니다..."):
-                    ai_response = get_script_response(customer_info)
+                    ai_response = get_script_response(
+                        name,
+                        age_group,
+                        gender,
+                        insurance_status,
+                        interest,
+                        reaction,
+                        etc
+                    )
                     script_text = "".join(ai_response)
 
                     # 👉 스크립트 context 저장
@@ -457,114 +510,14 @@ if st.session_state.page == "input":
 # ----------------- 챗봇 화면 -------------------
 elif st.session_state.page == "chatbot":
         
-    # 현재 날짜와 시간 표시
-    KST = timezone(timedelta(hours=9))
-    now_korea = datetime.now(KST).strftime("%Y년 %m월 %d일")
-    st.sidebar.markdown(
-        f"<span style='font-size:18px;'>📅 <b>{now_korea}</b></span>",
-        unsafe_allow_html=True
-    )
+    # 사이드바 호출
+    render_sidebar()
     
-    # 최상단 인삿말 + 화이팅 멘트
-    user_name = st.session_state['user_folder'].split('_')[0]
-    st.sidebar.title(f"😊 {user_name}님, 반갑습니다!")
-    st.sidebar.markdown("오늘도 멋진 상담 화이팅입니다! 💪")
-
-    # 구분선
-    st.sidebar.markdown(
-        "<hr style='margin-top:18px; margin-bottom:32px;'>",
-        unsafe_allow_html=True
-    )
-
-    # 사용자 폴더 경로
-    user_path = f"/data/history/{CHATBOT_TYPE}/{st.session_state['user_folder']}"
-    if not os.path.exists(user_path):
-        os.makedirs(user_path)
-
-    history_files = os.listdir(user_path)
-
-    if history_files:
-        # 🔍 검색창 추가
-        search_keyword = st.sidebar.text_input("🔎 고객명으로 검색", placeholder="고객명 입력 후 ENTER", key="search_input")        
-
-        # 파일명 필터링 (대소문자 무시)
-        filtered_files = [f for f in history_files if search_keyword.lower() in f.lower()]
+    # 고객 정보 요약
+    render_customer_info()
         
-        selected_chat = st.sidebar.selectbox("📂 저장된 대화 기록", filtered_files)
-        
-        col1, col2 = st.sidebar.columns(2)
-        
-
-        with col1:
-            if st.button("불러오기", use_container_width=True):
-                with open(f"{user_path}/{selected_chat}", "r", encoding="utf-8") as f:
-                    loaded_data = json.load(f)
-                    if isinstance(loaded_data, list):
-                        st.session_state['script_context'] = ""
-                        st.session_state.message_list = loaded_data
-                        st.session_state['customer_name'] = "고객명미입력"
-                    elif isinstance(loaded_data, dict):
-                        st.session_state['script_context'] = loaded_data.get("script_context", "")
-                        st.session_state.message_list = loaded_data.get("message_list", [])
-                        st.session_state['customer_name'] = loaded_data.get("customer_name", selected_chat.split('_')[0])
-                    else:
-                        st.error("❌ 불러온 파일 형식이 잘못되었습니다.")
-                        st.stop()
-
-                st.session_state['current_file'] = selected_chat
-                st.session_state.page = "chatbot"
-                st.experimental_rerun()
-
-        with col2:
-            if st.button("🗑️ 삭제하기", use_container_width=True):
-                file_path = f"{user_path}/{selected_chat}"
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                        st.sidebar.success(f"{selected_chat} 삭제 완료!")
-                        st.experimental_rerun()
-                    except Exception as e:
-                        st.sidebar.error(f"❌ 삭제 중 오류가 발생했습니다: {e}")
-                else:
-                    st.sidebar.warning("이미 삭제된 파일입니다.")
-        # ✅ 검색 결과 없을 때만 메시지 출력
-        if not filtered_files and search_keyword:
-            st.sidebar.markdown(
-                "<div style='padding:6px; background-color:#f0f0f0; border-radius:5px;'>🔍 검색 결과가 없습니다.</div>",
-                unsafe_allow_html=True
-            )
-            
-    else:
-        st.sidebar.info("저장된 대화가 없습니다.")
-
-    # 구분선
-    st.sidebar.markdown(
-        "<hr style='margin-top:20px; margin-bottom:34px;'>",
-        unsafe_allow_html=True
-    )
-    
-    # 새로운 고객 정보 입력하기 버튼       
-    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
-        st.session_state.page = "input"
-        st.session_state.message_list = []
-        st.session_state.script_context = ""
-        st.session_state.kakao_text = ""
-        st.session_state['current_file'] = ""
-        st.session_state['customer_name'] = ""
-
-        # ⭐ 세션 히스토리 초기화
-        store[st.session_state.session_id] = ChatMessageHistory()
-
-        st.experimental_rerun()    
-
-    # 최하단 로그아웃 버튼
-    if st.sidebar.button("로그아웃", use_container_width=True):
-        st.session_state.page = "login"
-        st.session_state.message_list = []
-        st.experimental_rerun()
-        
-    user_avatar = "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/user_avatar.png?raw=true"
-    ai_avatar = "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/ai_avatar.png?raw=true"
+    user_avatar = URLS['user_avatar']
+    ai_avatar = URLS['ai_avatar']
         
     messages = st.session_state.get("message_list", [])
 
@@ -604,6 +557,9 @@ elif st.session_state.page == "chatbot":
                         message_list = st.session_state['message_list']
                     )
                     st.session_state['kakao_text'] = "".join(kakao_message)
+                    
+                # ✅ 안내 문구 출력
+                st.info("✅ 카카오톡 문자가 생성되었습니다! 계속해서 추가 질문을 이어가실 수 있습니다.")
                                 
     with col2:
         if st.button("💾 대화 저장하기", use_container_width=True):
@@ -652,7 +608,7 @@ elif st.session_state.page == "chatbot":
         st.text_area("아래 내용을 복사해 사용하세요.", value=st.session_state['kakao_text'], height=400)
         
 # 이미지 URL
-bottom_image_url = "https://github.com/jssoleey/goodrich-chatbot-sale/blob/main/image/bottom_box.png?raw=true"
+bottom_image_url = URLS["bottom_image"]
 
 # 최하단에 이미지 출력
 st.caption("")
