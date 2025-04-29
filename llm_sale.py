@@ -120,6 +120,60 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
 
+# ======================== 랜덤 고객정보 생성 ========================
+def get_random_customer_info():
+    prompt_template = ChatPromptTemplate.from_messages([
+        ("system", """
+        당신은 보험 영업을 위한 가상의 고객 정보를 생성하는 AI 어시스턴트입니다.
+        
+        [출력 지침]
+        보험 상담 고객 정보를 다음 형식으로 랜덤 생성하세요:
+        - 고객 이름: 자연스러운 한글 이름을 생성하세요.
+        - 연령대: 20대, 30대, 40대, 50대, 60대, 70대 이상 중 하나
+        - 성별: 남성 또는 여성
+        - 기존 보험 상태: 기존에 가입하거나 보유한 보험을 구체적으로 작성해주세요.
+        - 관심 보험: 가상의 고객이 관심을 갖고 있는 보험을 구체적으로 작성해주세요.
+        - 고객 반응: 상황과 관련된 현재 고객의 주요 생각을 구체적으로 작성해주세요.
+        - 기타 상황: 현재 고객과 관련된 기타 상황을 구체적으로 작성해주세요.
+
+        출력은 반드시 다음처럼 해주세요:
+
+        고객 이름: (이름)
+        연령대: (연령대)
+        성별: (성별)
+        기존 보험 상태: (텍스트)
+        관심 보험: (텍스트)
+        고객 반응: (텍스트)
+        기타 상황: (텍스트)
+        """),
+        ("human", "랜덤 고객 정보를 생성해 주세요.")
+    ])
+
+    chain = prompt_template | get_llm() | StrOutputParser()
+
+    result = chain.invoke({})
+
+    # 결과 파싱
+    lines = result.splitlines()
+    info = {}
+    for line in lines:
+        if line.startswith("고객 이름:"):
+            info['name'] = line.replace("고객 이름:", "").strip()
+        elif line.startswith("연령대:"):
+            info['age_group'] = line.replace("연령대:", "").strip()
+        elif line.startswith("성별:"):
+            info['gender'] = line.replace("성별:", "").strip()
+        elif line.startswith("기존 보험 상태:"):
+            info['insurance_status'] = line.replace("기존 보험 상태:", "").strip()
+        elif line.startswith("관심 보험:"):
+            info['interest'] = line.replace("관심 보험:", "").strip()
+        elif line.startswith("고객 반응:"):
+            info['reaction'] = line.replace("고객 반응:", "").strip()
+        elif line.startswith("기타 상황:"):
+            info['etc'] = line.replace("기타 상황:", "").strip()
+
+    return info
+
 # ======================== 스크립트 생성 ========================
 def get_script_response(name, age_group, gender, insurance_status, interest, reaction, etc):
     try:
