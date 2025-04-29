@@ -293,6 +293,16 @@ def reset_session_for_new_case():
     st.session_state.kakao_text = ""
     st.session_state['current_file'] = ""
     st.session_state['customer_name'] = ""
+
+    # 👉 입력 필드 초기화
+    st.session_state['customer_name_input'] = ''
+    st.session_state['age_group_input'] = '30대'  # 기본값
+    st.session_state['gender_input'] = '남성'     # 기본값
+    st.session_state['insurance_status_input'] = ''
+    st.session_state['interest_input'] = ''
+    st.session_state['reaction_input'] = ''
+    st.session_state['etc_input'] = ''
+    
     store[st.session_state.session_id] = ChatMessageHistory()
     st.experimental_rerun()
     
