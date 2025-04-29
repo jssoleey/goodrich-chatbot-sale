@@ -1,5 +1,5 @@
 import streamlit as st
-from llm_sale import get_chatbot_response, get_script_response, get_kakao_response
+from llm_sale import get_chatbot_response, get_script_response, get_kakao_response, get_random_customer_info
 import re
 import os, json
 from datetime import datetime, timedelta, timezone
@@ -395,6 +395,7 @@ initialize_session()
 if st.session_state.page == "login":
     name = st.text_input(label = "ID", placeholder="이름(홍길동)")
     emp_id = st.text_input(label = "Password", placeholder="휴대폰 끝번호 네 자리(0000)")
+    st.caption("")
             
     col1, col2, col3 = st.columns([1, 1, 1])   # 비율을 조정해서 가운데로
 
@@ -419,12 +420,15 @@ if st.session_state.page == "input":
         "<h4 style='margin-bottom: 20px;'>👤 고객 정보를 입력해 주세요</h4>",
         unsafe_allow_html=True
     )
-    name = st.text_input("고객 이름", placeholder = "예: 홍길동")
+    name = st.text_input("고객 이름", placeholder = "예: 홍길동", value=st.session_state.get('customer_name_input', ''))
     # 고객 연령대 선택 (라디오 버튼)
     age_group = st.radio(
         "고객 연령대",
         ["20대", "30대", "40대", "50대", "60대", "70대 이상"],
         key="age_radio",
+        index=["20대", "30대", "40대", "50대", "60대", "70대 이상"].index(
+            st.session_state.get('age_group_input', "30대")
+        ) if 'age_group_input' in st.session_state else 1,
         horizontal=False   # 세로 배치 (기본값)
     )
 
@@ -433,28 +437,52 @@ if st.session_state.page == "input":
         "고객 성별",
         ["남성", "여성"],
         key="gender_radio",
+        index=["남성", "여성"].index(
+            st.session_state.get('gender_input', "남성")
+        ) if 'gender_input' in st.session_state else 0,
         horizontal=True     # 성별은 가로 배치 추천
     )
+    
     insurance_status = st.text_input(
         label="기존 보험 상태",
-        placeholder="예: 태아보험 상담 신청, 10년 전에 가입한 암보험과 실손보험이 있음, 보장 내용은 잘 모름"
+        placeholder="예: 태아보험 상담 신청, 10년 전에 가입한 암보험과 실손보험이 있음, 보장 내용은 잘 모름",
+        value=st.session_state.get('insurance_status_input', '')
     )
+    
     interest = st.text_input(
         "고객 관심 보험",
-        placeholder="예: 태아보험, 간병보험"
+        placeholder="예: 태아보험, 간병보험",
+        value=st.session_state.get('interest_input', '')
     )
 
     reaction = st.text_input(
         "고객 반응",
-        placeholder="예: 보험료를 저렴하게 가입하고 싶음, 최근 병원 진료 후 필요성을 느껴 상담 신청"
+        placeholder="예: 보험료를 저렴하게 가입하고 싶음, 최근 병원 진료 후 필요성을 느껴 상담 신청",
+        value=st.session_state.get('reaction_input', '')
     )
 
     etc = st.text_input(
         "기타 상황",
-        placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음"
+        placeholder="예: 가족력(부친 고혈압) 있고, 갱신형 보험료 인상에 대한 걱정이 있음",
+        value=st.session_state.get('etc_input', '')
     )
+    st.caption("")
 
-    col1, col2, col3 = st.columns([1, 2, 1])   # 비율을 조정해서 가운데로
+    col1, col2 = st.columns([1, 1])
+    
+    with col1 :
+        if st.button("🎲 랜덤 고객 정보 생성하기", use_container_width=True):
+            with st.spinner("랜덤 고객 정보를 생성 중입니다..."):
+                random_info = get_random_customer_info()
+                st.session_state['customer_name_input'] = random_info['name']
+                st.session_state['age_group_input'] = random_info['age_group']
+                st.session_state['gender_input'] = random_info['gender']
+                st.session_state['insurance_status_input'] = random_info['insurance_status']
+                st.session_state['interest_input'] = random_info['interest']
+                st.session_state['reaction_input'] = random_info['reaction']
+                st.session_state['etc_input'] = random_info['etc']
+                
+            st.experimental_rerun()
 
     with col2:
         if st.button("🚀 상담 스크립트 생성하기", use_container_width=True):
