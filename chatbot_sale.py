@@ -230,7 +230,7 @@ def render_sidebar():
 
     st.sidebar.markdown("<hr style='margin-top:24px; margin-bottom:38px;'>", unsafe_allow_html=True)
 
-    if st.sidebar.button("🆕 새로운 민원 상황 입력하기", use_container_width=True):
+    if st.sidebar.button("🆕 새로운 고객 정보 입력하기", use_container_width=True):
         reset_session_for_new_case()
 
     if st.sidebar.button("로그아웃", use_container_width=True):
