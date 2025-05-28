@@ -481,17 +481,25 @@ if st.session_state.page == "input":
     col1, col2 = st.columns([1, 1])
     
     with col1 :
-        if st.button("🎲 랜덤 고객 정보 생성하기", use_container_width=True):
-            with st.spinner("랜덤 고객 정보를 생성 중입니다..."):
-                random_info = get_random_customer_info()
-                st.session_state['customer_name_input'] = random_info['name']
-                st.session_state['age_group_input'] = random_info['age_group']
-                st.session_state['gender_input'] = random_info['gender']
-                st.session_state['insurance_status_input'] = random_info['insurance_status']
-                st.session_state['interest_input'] = random_info['interest']
-                st.session_state['reaction_input'] = random_info['reaction']
-                st.session_state['etc_input'] = random_info['etc']
-                
+        if st.button("📝 입력 예시 불러오기", use_container_width=True):
+            # 고정된 예시 데이터
+            example_info = {
+                "name": "김예진",
+                "age_group": "40대",
+                "gender": "여성",
+                "insurance_status": "10년 전 가입한 실손보험 외에는 없음",
+                "interest": "암보험, 간병보험",
+                "reaction": "최근 건강검진에서 이상소견이 있어 보장을 다시 점검하고 싶음",
+                "etc": "가족력(어머니 유방암)으로 인해 암 관련 보장에 관심이 많음"
+            }
+            st.session_state['customer_name_input'] = example_info['name']
+            st.session_state['age_group_input'] = example_info['age_group']
+            st.session_state['gender_input'] = example_info['gender']
+            st.session_state['insurance_status_input'] = example_info['insurance_status']
+            st.session_state['interest_input'] = example_info['interest']
+            st.session_state['reaction_input'] = example_info['reaction']
+            st.session_state['etc_input'] = example_info['etc']
+            
             st.experimental_rerun()
 
     with col2:
